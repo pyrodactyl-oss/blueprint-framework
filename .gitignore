@@ -43,3 +43,7 @@ docker-compose.yaml
 wak.toml
 demo/
 .build-cache.json
+
+Redprint.zip
+Blueprint.zip
+release.zip
