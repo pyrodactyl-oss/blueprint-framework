@@ -2,11 +2,10 @@
 @yield('blueprint.lib')
 
 <!DOCTYPE html>
-<html>
+<!-- Copyright (c) 2023-2025 Pyro Inc., parent collaborators, and contributors -->
+<html data-pyro-html lang="en" style="background-color: #000000; height: 100%; width: 100%; margin: 0; padding: 0;">
     <head>
-        <title>{{ config('app.name', 'Pterodactyl') }}</title>
-
-        @yield('head')
+        <title>{{ config('app.name', 'Panel') }}</title>
 
         @section('meta')
             <meta charset="utf-8">
@@ -14,14 +13,16 @@
             <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
             <meta name="csrf-token" content="{{ csrf_token() }}">
             <meta name="robots" content="noindex">
-            <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png">
-            <link rel="icon" type="image/png" href="/favicons/favicon-32x32.png" sizes="32x32">
-            <link rel="icon" type="image/png" href="/favicons/favicon-16x16.png" sizes="16x16">
-            <link rel="manifest" href="/favicons/manifest.json">
-            <link rel="mask-icon" href="/favicons/safari-pinned-tab.svg" color="#bc6e3c">
-            <link rel="shortcut icon" href="/favicons/favicon.ico">
-            <meta name="msapplication-config" content="/favicons/browserconfig.xml">
-            <meta name="theme-color" content="#0e4688">
+
+            <link rel="icon" type="image/png" href="/favicons/favicon-96x96.png" sizes="96x96" />
+            <link rel="icon" type="image/svg+xml" href="/favicons/favicon.svg" />
+            <link rel="shortcut icon" href="/favicons/favicon.ico" />
+            <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png" />
+            <meta name="apple-mobile-web-app-title" content="Pyrodactyl" />
+            <link rel="manifest" href="/favicons/site.webmanifest" />
+
+            <meta name="theme-color" content="#000000">
+            <meta name="darkreader-lock">
         @show
 
         @section('user-data')
@@ -37,24 +38,23 @@
             @endif
         @show
         <style>
-            @import url('//fonts.googleapis.com/css?family=Rubik:300,400,500&display=swap');
-            @import url('//fonts.googleapis.com/css?family=IBM+Plex+Mono|IBM+Plex+Sans:500&display=swap');
+            @import url('https://fonts.bunny.net/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap')
         </style>
 
         @yield('assets')
 
         @include('layouts.scripts')
+
+        @viteReactRefresh
+        @vite('resources/scripts/index.tsx')
     </head>
-    <body class="{{ $css['body'] ?? 'bg-neutral-50' }}">
+    <body data-pyro-body class="{{ $css['body'] }}" style="background-color: #000000; height: 100%; width: 100%; margin: 0; padding: 0;">
         @section('content')
             @yield('above-container')
             @yield('container')
             @yield('below-container')
-            
+
             @yield('blueprint.wrappers')
-        @show
-        @section('scripts')
-            {!! $asset->js('main.js') !!}
         @show
     </body>
 </html>
