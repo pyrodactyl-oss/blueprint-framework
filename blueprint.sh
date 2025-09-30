@@ -364,7 +364,7 @@ if [[ $1 != "-bash" ]]; then
     cd "$FOLDER" || cdhalt
     # yarn run build:production --progress
     # Correct build script to follow new vite scripts from Pyro
-    yarn run build --progress
+    yarn run build
 
     ((PROGRESS_NOW++))
 

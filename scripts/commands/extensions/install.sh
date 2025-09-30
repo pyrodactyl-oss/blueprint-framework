@@ -1396,7 +1396,9 @@ Command() {
       PRINT INFO "Rebuilding panel assets.."
       hide_progress
       cd "$FOLDER" || cdhalt
-      yarn run build:production --progress
+      # yarn run build:production --progress
+      # Correct build script to follow new vite scripts from Pyro
+      yarn run build
     fi
 
     ((PROGRESS_NOW++))
