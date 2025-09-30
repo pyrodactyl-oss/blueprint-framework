@@ -137,7 +137,9 @@ const FileEditContainer = () => {
                 </div>
             </ErrorBoundary>
 
-            <BeforeEdit />
+            <div className='bg-[#ffffff11] px-2'>
+				<BeforeEdit />
+			</div>
 
             {['.pyroignore', '.pteroignore'].includes(filename) ? (
                 <div className={`mb-4 p-4 border-l-4 bg-neutral-900 rounded-sm border-cyan-400`}>
