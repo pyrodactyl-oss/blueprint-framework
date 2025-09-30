@@ -121,6 +121,7 @@ depend() {
   { ! [ -x "$(command -v inotifywait)" ] && [[ "$DeveloperWatch" == true ]]; } || # inotify-tools (devdep)
   [[ $nodeMajor -lt 17 ]] ||                                                      # node version
   ! [ "$(ls "node_modules/"*"webpack"* 2> /dev/null)"   ] ||                      # webpack
+  ! [ "$(ls "node_modules/"*"classnames"* 2> /dev/null)"   ] ||                   # classnames
   ! [ "$(ls "node_modules/"*"react"* 2> /dev/null)"     ] ||                      # react
   [[ $missinglibs != "" ]]; then                                                  # internal
     DEPEND_MISSING=true
