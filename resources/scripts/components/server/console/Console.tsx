@@ -213,7 +213,7 @@ const Console = () => {
                     </div>
                 </div>
                 {canSendCommands && (
-                    <div className='relative border-t-[1px] border-[#ffffff11] bg-[#0f0f0f]'>
+                    <div className='relative flex border-t-[1px] border-[#ffffff11] bg-[#0f0f0f]'>
                         <input
                             className='w-full bg-transparent px-3 py-2.5 sm:px-4 sm:py-3 font-mono text-xs sm:text-sm text-zinc-100 placeholder-zinc-500 border-0 outline-none focus:ring-0 focus:outline-none focus:bg-[#1a1a1a] transition-colors duration-150'
                             type='text'
