@@ -147,6 +147,7 @@ depend() {
     if ! [ -x "$(command -v awk)"                          ]; then PRINT FATAL "Missing dependency \"awk\".";     fi
     if ! [ -x "$(command -v tput)"                         ]; then PRINT FATAL "Missing dependency \"tput\".";    fi
     if ! [ "$(ls "node_modules/"*"webpack"* 2> /dev/null)" ]; then PRINT FATAL "Missing dependency \"webpack\"."; fi
+    if ! [ "$(ls "node_modules/"*"classnames"* 2> /dev/null)" ]; then PRINT FATAL "Missing dependency \"classnames\"."; fi
     if ! [ "$(ls "node_modules/"*"react"* 2> /dev/null)"   ]; then PRINT FATAL "Missing dependency \"react\".";   fi
 
     if ! [ -x "$(command -v inotifywait)" ] && [[ "$DeveloperWatch" == true ]]; then
