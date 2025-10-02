@@ -232,12 +232,12 @@
       }, function() {
         $.ajax({
           type: 'POST',
-          url: '{{ route('auth.logout') }}',
+          url: "{{ route('auth.logout') }}",
           data: {
             _token: '{{ csrf_token() }}'
           },
           complete: function() {
-            window.location.href = '{{route('auth.login')}}';
+            window.location.href = "{{route('auth.login')}}";
           }
         });
       });
