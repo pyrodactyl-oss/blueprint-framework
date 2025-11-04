@@ -9,8 +9,8 @@
 # and override the variables there.
 
 BLUEPRINT_ENGINE="solstice"
-REPOSITORY="BlueprintFramework/framework"
-VERSION="beta-2025-08"
+REPOSITORY="pyrodactyl-oss/blueprint-framework"
+VERSION="beta-2025-11"
 
 FOLDER=$(realpath "$(dirname "$0" 2> /dev/null)" 2> /dev/null) || FOLDER="$BLUEPRINT__FOLDER"
 OWNERSHIP="www-data:www-data" #;
@@ -368,7 +368,7 @@ if [[ $1 != "-bash" ]]; then
 
     ((PROGRESS_NOW++))
 
-    if [[ $DOCKER != "y" ]] && [[ $MAINTENANCE == "true" ]]; then
+    if [[ $MAINTENANCE == "true" ]]; then
       # Put application into production.
       PRINT INFO "Put application into production."
       php artisan up &>> "$BLUEPRINT__DEBUG"
