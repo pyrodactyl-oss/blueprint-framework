@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { NavLink, Route, Routes, useLocation, useParams } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { NavLink, Route, Routes, useLocation } from 'react-router-dom';
 import PermissionRoute from '@/components/elements/PermissionRoute';
 import Can from '@/components/elements/Can';
 import Spinner from '@/components/elements/Spinner';
@@ -11,6 +11,12 @@ import routes from '@/routers/routes';
 import blueprintRoutes from './routes';
 import { UiBadge } from '@blueprint/ui';
 
+/**
+ * NOTE: This file assumes its parent route is mounted with a splat:
+ *   <Route path="/server/:id/*" element={<YourLayoutWithOutlet />} />
+ * That is required for nested children to match deeper segments in v6+.  :contentReference[oaicite:1]{index=1}
+ */
+
 const blueprintExtensions = [...new Set(blueprintRoutes.server.map((route) => route.identifier))];
 
 /** Get the route egg IDs for each extension with server routes. */
@@ -21,29 +27,49 @@ const useExtensionEggs = () => {
 
     useEffect(() => {
         (async () => {
-            const newEggs: { [x: string]: string[] } = {};
-            for (const id of blueprintExtensions) {
-                const resp = await fetch(`/api/client/extensions/blueprint/eggs?${new URLSearchParams({ id })}`);
-                newEggs[id] = (await resp.json()) as string[];
+            try {
+                const newEggs: { [x: string]: string[] } = {};
+                for (const id of blueprintExtensions) {
+                    const resp = await fetch(
+                        `/api/client/extensions/blueprint/eggs?${new URLSearchParams({ id })}`
+                    );
+                    const json = (await resp.json()) as string[] | null;
+                    newEggs[id] = Array.isArray(json) && json.length ? json : ['-1'];
+                }
+                setExtensionEggs(newEggs);
+            } catch {
+                // On any error, fall back to "-1" (available everywhere)
+                setExtensionEggs(
+                    blueprintExtensions.reduce((prev, current) => ({ ...prev, [current]: ['-1'] }), {})
+                );
             }
-            setExtensionEggs(newEggs);
         })();
     }, []);
 
     return extensionEggs;
 };
 
+/** Normalize a route segment for relative routing. '/' -> '' (index), strip leading/trailing slashes */
+const seg = (value?: string) => (value ? value.replace(/^\/+|\/+$/g, '') : '');
+
+/** Build a relative path for <Route>. Adds '/*' when exact === false (RRv6 uses splat for nested). */
+const relPath = (value?: string, exact?: boolean) => {
+    const s = seg(value); // '' means "index route"
+    const isExact = exact ?? true;
+    return isExact ? s : `${s}/*`;
+};
+
+/** Build a relative target for <NavLink>. '' hits the parent's index. */
+const toRel = (value?: string) => {
+    if (!value || value === '/') return '';
+    return value.replace(/^\/+/, '');
+};
+
 export const NavigationLinks = () => {
     const rootAdmin = useStoreState((state) => state.user.data!.rootAdmin);
-    const serverEgg = ServerContext.useStoreState((state) => state.server.data?.BlueprintFramework.eggId);
-    const { id } = useParams<{ id: string }>();
-    // Build absolute URLs like the old match.url variant
-    const baseUrl = `/server/${id ?? ''}`;
-    const to = (value: string) =>
-        value === '/'
-            ? baseUrl.replace(/\/$/, '')
-            : `${baseUrl.replace(/\/*$/, '')}/${value.replace(/^\/+/, '')}`;
-
+    const serverEgg = ServerContext.useStoreState(
+        (state) => state.server.data?.BlueprintFramework.eggId
+    );
     const extensionEggs = useExtensionEggs();
 
     return (
@@ -53,13 +79,13 @@ export const NavigationLinks = () => {
                 .filter((route) => !!route.name)
                 .map((route) =>
                     route.permission ? (
-                        <Can key={route.path} action={route.permission} matchAny>
-                            <NavLink to={to(route.path ?? '')} end={!!route.exact}>
+                        <Can key={route.path ?? 'core-unnamed'} action={route.permission} matchAny>
+                            <NavLink to={toRel(route.path)} end={route.exact ?? true}>
                                 {route.name}
                             </NavLink>
                         </Can>
                     ) : (
-                        <NavLink key={route.path} to={to(route.path ?? '')} end={!!route.exact}>
+                        <NavLink key={route.path ?? 'core-unnamed'} to={toRel(route.path)} end={route.exact ?? true}>
                             {route.name}
                         </NavLink>
                     )
@@ -70,15 +96,15 @@ export const NavigationLinks = () => {
                 blueprintRoutes.server
                     .filter((route) => !!route.name)
                     .filter((route) => (route.adminOnly ? rootAdmin : true))
-                    .filter((route) =>
-                        extensionEggs[route.identifier].includes('-1')
-                            ? true
-                            : extensionEggs[route.identifier].find((eggId) => eggId === serverEgg?.toString())
-                    )
+                    .filter((route) => {
+                        const eggs = extensionEggs[route.identifier] ?? ['-1'];
+                        const needle = serverEgg?.toString() ?? '';
+                        return eggs.includes('-1') || (needle && eggs.includes(needle));
+                    })
                     .map((route) =>
                         route.permission ? (
-                            <Can key={route.path} action={route.permission} matchAny>
-                                <NavLink to={to(route.path ?? '')} end={!!route.exact}>
+                            <Can key={route.path ?? 'bp-unnamed'} action={route.permission} matchAny>
+                                <NavLink to={toRel(route.path)} end={route.exact ?? true}>
                                     {route.name}
                                     {route.adminOnly ? (
                                         <>
@@ -86,11 +112,11 @@ export const NavigationLinks = () => {
                                             <UiBadge>ADMIN</UiBadge>
                                             <span className="hidden">)</span>
                                         </>
-                                    ) : undefined}
+                                    ) : null}
                                 </NavLink>
                             </Can>
                         ) : (
-                            <NavLink key={route.path} to={to(route.path ?? '')} end={!!route.exact}>
+                            <NavLink key={route.path ?? 'bp-unnamed'} to={toRel(route.path)} end={route.exact ?? true}>
                                 {route.name}
                                 {route.adminOnly ? (
                                     <>
@@ -98,7 +124,7 @@ export const NavigationLinks = () => {
                                         <UiBadge>ADMIN</UiBadge>
                                         <span className="hidden">)</span>
                                     </>
-                                ) : undefined}
+                                ) : null}
                             </NavLink>
                         )
                     )}
@@ -108,48 +134,32 @@ export const NavigationLinks = () => {
 
 export const NavigationRouter = () => {
     const rootAdmin = useStoreState((state) => state.user.data!.rootAdmin);
-    const serverEgg = ServerContext.useStoreState((state) => state.server.data?.BlueprintFramework.eggId);
-    const { id } = useParams<{ id: string }>();
+    const serverEgg = ServerContext.useStoreState(
+        (state) => state.server.data?.BlueprintFramework.eggId
+    );
     const location = useLocation();
     const extensionEggs = useExtensionEggs();
 
-    // Build absolute paths like the old match.path variant
-    const basePath = `/server/${id ?? ''}`;
-    const toPath = (value: string) =>
-        value === '/'
-            ? basePath.replace(/\/$/, '')
-            : `${basePath.replace(/\/*$/, '')}/${value.replace(/^\/+/, '')}`;
+    // Pre-filter blueprint routes once
+    const bpRoutes = blueprintRoutes.server
+        .filter((route) => (route.adminOnly ? rootAdmin : true))
+        .filter((route) => {
+            const eggs = extensionEggs[route.identifier] ?? ['-1'];
+            const needle = serverEgg?.toString() ?? '';
+            return eggs.includes('-1') || (needle && eggs.includes(needle));
+        });
 
     return (
         <Routes location={location}>
             {/* Pterodactyl routes */}
-            {routes.server.map(({ path, permission, component: Component }) => (
-                <Route
-                    key={path}
-                    path={toPath(path ?? '')}
-                    element={
-                        <PermissionRoute permission={permission}>
-                            <Spinner.Suspense>
-                                <Component />
-                            </Spinner.Suspense>
-                        </PermissionRoute>
-                    }
-                />
-            ))}
-
-            {/* Blueprint routes */}
-            {blueprintRoutes.server.length > 0 &&
-                blueprintRoutes.server
-                    .filter((route) => (route.adminOnly ? rootAdmin : true))
-                    .filter((route) =>
-                        extensionEggs[route.identifier].includes('-1')
-                            ? true
-                            : extensionEggs[route.identifier].find((eggId) => eggId === serverEgg?.toString())
-                    )
-                    .map(({ path, permission, component: Component }) => (
+            {routes.server.map(({ path, permission, component: Component, exact }) => {
+                const s = seg(path ?? '');
+                const isIndex = (exact ?? true) && s === '';
+                if (isIndex) {
+                    return (
                         <Route
-                            key={path}
-                            path={toPath(path ?? '')}
+                            key="core-index"
+                            index
                             element={
                                 <PermissionRoute permission={permission}>
                                     <Spinner.Suspense>
@@ -158,7 +168,56 @@ export const NavigationRouter = () => {
                                 </PermissionRoute>
                             }
                         />
-                    ))}
+                    );
+                }
+                return (
+                    <Route
+                        key={path ?? 'core-route'}
+                        path={relPath(path ?? '', exact)}
+                        element={
+                            <PermissionRoute permission={permission}>
+                                <Spinner.Suspense>
+                                    <Component />
+                                </Spinner.Suspense>
+                            </PermissionRoute>
+                        }
+                    />
+                );
+            })}
+
+            {/* Blueprint routes */}
+            {bpRoutes.map(({ path, permission, component: Component, exact }) => {
+                const s = seg(path ?? '');
+                const isIndex = (exact ?? true) && s === '';
+                if (isIndex) {
+                    return (
+                        <Route
+                            key="bp-index"
+                            index
+                            element={
+                                <PermissionRoute permission={permission ?? undefined}>
+                                    <Spinner.Suspense>
+                                        <Component />
+                                    </Spinner.Suspense>
+                                </PermissionRoute>
+                            }
+                        />
+                    );
+                }
+                return (
+                    <Route
+                        key={path ?? 'bp-route'}
+                        path={relPath(path ?? '', exact)}
+                        element={
+                            <PermissionRoute permission={permission ?? undefined}>
+                                <Spinner.Suspense>
+                                    <Component />
+                                </Spinner.Suspense>
+                            </PermissionRoute>
+                        }
+                    />
+                );
+            })}
 
             <Route path="*" element={<NotFound />} />
         </Routes>
