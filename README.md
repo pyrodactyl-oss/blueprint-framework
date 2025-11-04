@@ -46,8 +46,9 @@ Blueprint is free and open-source software. We play a vital role in the Pyrodact
 Contributors help shape the future of the Blueprint modding framework. To start contributing you have to [fork this repository](https://github.com/BlueprintFramework/framework/fork) and [open a pull request](https://github.com/BlueprintFramework/framework/compare).
 
 <!-- Contributors Widget -->
+<!-- v param forces Github to refresh the image -->
 <a href="https://github.com/pyrodactyl-oss/blueprint-framework/graphs/contributors">
-    <img src="https://contrib.rocks/image?repo=pyrodactyl-oss/blueprint-framework" alt="Contributors" />
+    <img src="https://contrib.rocks/image?repo=pyrodactyl-oss/blueprint-framework&v=YYYYMMDD" alt="Contributors" />
 </a>
 
 <!-- Stargazers -->
