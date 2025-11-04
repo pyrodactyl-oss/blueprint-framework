@@ -17,7 +17,6 @@ namespace Pterodactyl\BlueprintFramework\Libraries\ExtensionLibrary;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Collection;
 use Symfony\Component\Yaml\Yaml;
-use Alert;
 
 class BlueprintBaseLibrary
 {
@@ -180,7 +179,7 @@ class BlueprintBaseLibrary
   /**
    * (Deprecated) Read and returns the content of a given file.
    *
-   * @deprecated beta-2025-08
+   * @deprecated beta-2025-09
    * @param string $path Path to file
    * @return string File contents or empty string if file does not exist or is not readable
    *
@@ -201,7 +200,7 @@ class BlueprintBaseLibrary
   /**
    * (Deprecated) Attempts to create a file.
    *
-   * @deprecated beta-2025-08
+   * @deprecated beta-2025-09
    * @param string $path File name/path
    *
    * [BlueprintExtensionLibrary documentation](https://blueprint.zip/docs/?page=documentation/$blueprint)
@@ -215,7 +214,7 @@ class BlueprintBaseLibrary
   /**
    * (Deprecated) Attempts to remove a file or directory.
    *
-   * @deprecated beta-2025-08
+   * @deprecated beta-2025-09
    * @param string $path Path to file/directory
    * @return bool Whether the file/directory was removed
    *
