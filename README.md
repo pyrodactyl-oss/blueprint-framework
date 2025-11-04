@@ -47,10 +47,8 @@ Contributors help shape the future of the Blueprint modding framework. To start 
 
 <!-- Contributors Widget -->
 <a href="https://github.com/pyrodactyl-oss/blueprint-framework/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=pyrodactyl-oss/blueprint-framework" />
+    <img src="https://contrib.rocks/image?repo=pyrodactyl-oss/blueprint-framework" alt="Contributors" />
 </a>
-
-
 
 <!-- Stargazers -->
 <br/><h2 align="center">🌟 Stargazers</h2>
